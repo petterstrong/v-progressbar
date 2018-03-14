@@ -7,21 +7,280 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.15/dist/vue.js"></script>
   <script src="../dist/v-progress.js"></script>
+  <style>
+    body, html {
+      padding: 0;
+      margin: 0;
+      background-color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,Helvetica Neue,PingFang SC,Microsoft YaHei,Source Han Sans SC,Noto Sans CJK SC,WenQuanYi Micro Hei,sans-serif;
+      font-size: 14px;
+      line-height: 1.62;
+      color: #222;
+    }
+    /* link */
+    a,
+    a:visited {
+      text-decoration: none;
+      color: #29d;
+    }
+
+    a:hover,
+    a:focus {
+      color: #18c;
+    }
+
+    /* button */
+    button {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
+    }
+
+    .button {
+      display: inline-block;
+      text-decoration: none;
+
+      background: #eee;
+      color: #777;
+      border-radius: 2px;
+
+      padding: 8px 10px;
+      font-weight: 400;
+      text-align: left;
+    }
+
+    .button.play:before {
+      content: '\25b6';
+    }
+
+    .button:hover {
+      background: #2d9;
+      color: #fff;
+    }
+
+    .button.primary {
+      background: #2d9;
+      color: #fff;
+    }
+    .button.primary:hover {
+      background: #1c8;
+    }
+
+    .button:active {
+      background: #2d9;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .logo {
+      display: inline-block;
+
+      width: 96px;
+      height: 16px;
+      border: solid 4px #2d9;
+      border-radius: 20px;
+
+      position: relative;
+    }
+
+    .logo:after {
+      content: '';
+      display: block;
+
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      bottom: 4px;
+      width: 40%;
+
+      background: #2d9;
+      border-radius: 8px;
+    }
+    .page-header {
+      text-align: center;
+      max-width: 460px;
+      padding: 3em 20px;
+      margin: 16px auto;
+      padding: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .page-header {
+        margin-top: 0;
+      }
+    }
+
+    .page-header h1 {
+      font-size: 2.0em;
+      text-align: center;
+      font-weight: 200;
+      line-height: 1.3;
+      color: #333;
+      margin: 0;
+    }
+
+    @media (min-width: 481px) {
+      .page-header h1 {
+        margin-top: 32px;
+        margin-bottom: 0.4em;
+        font-size: 3em;
+      }
+    }
+
+    p.brief {
+      color: #888;
+    }
+
+
+    .page-header h1 i {
+      color: #aaa;
+      font-style: normal;
+      font-weight: 200;
+    }
+
+    /* controls */
+    .controls {
+      text-align: left;
+      margin: 0 auto;
+      max-width: 400px;
+      color: #666;
+      font-size: 0.86em;
+      box-shadow: 0 8px 12px rgba(60, 90, 120, 0.1);
+      border-radius: 4px;
+    }
+
+    .controls > p {
+      margin: 0;
+      padding: 16px;
+    }
+
+    .controls > p + p {
+      padding-top: 0;
+    }
+
+    .controls .button {
+      width: 40px;
+      margin-right: 8px;
+      text-align: center;
+    }
+
+    /* "VProgressbar" */
+    .controls i {
+      color: #999;
+      font-size: 1.2em;
+    }
+
+    /* ".start()" */
+    .controls b {
+      color: #29d;
+      font-weight: 700;
+      font-size: 1.2em;
+    }
+    /* fade */
+    .fade {
+      transition: all 300ms linear;
+      transform: translate3d(0,0,0);
+      opacity: 1;
+    }
+    .fade.out {
+      opacity: .2;
+    }
+    /* actions */
+    .actions {
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    @media (min-width: 481px) {
+      .actions {
+        margin: 32px 0;
+      }
+    }
+
+    .big.button {
+      padding-left: 32px;
+      padding-right: 32px;
+      font-size: 1.2em;
+    }
+  </style>
   <title>V-Progressbar</title>
 </head>
 <body>
 <div id="app">
-  <!--<v-progressbar :global="true"></v-progressbar>-->
+  <header class="page-header">
+    <span class="logo fade" :class="{'out': loading}"></span>
+    <h1>
+      VProgressbar
+    </h1>
+    <p class="fade brief" :class="{'out': loading}">
+      <b>
+        A nanoscopic progress bar for vue.Inspired by <a href="http://ricostacruz.com/nprogress/" target="_blank">NProgress.js</a>
+      </b>
+    </p>
+  </header>
+  <div class="contents fade" :class="{'out': loading}">
+    <div class="controls">
+      <p>
+        <button class="button play" @click="start"></button>
+        <b>start</b>
+        — shows the progress bar
+      </p>
+      <p>
+        <button class="button play" @click="setPeg"></button>
+        <b>set(0.4)</b>
+        — sets a percentage
+      </p>
+      <p>
+        <button class="button play" @click="setPeg"></button>
+        <b>inc</b>
+        — increments by a little
+      </p>
+      <p>
+        <button class="button play" @click="setPeg"></button>
+        <b>done</b>
+        — completes the progress
+      </p>
+      <p>
+        <button class="button play" @click="setPeg"></button>
+        <b>failed</b>
+        — set failed progress
+      </p>
+    </div>
+    <div class="actions">
+      <a href="https://github.com/petterstrong/v-progressbar" class="button primary big">
+        View on Github
+      </a>
+    </div>
+  </div>
 </div>
   <script>
     Vue.use(VProgressBar)
     var app = new Vue({
       el: '#app',
+      data () {
+        return {
+          loading: true
+        }
+      },
       mounted ()  {
         this.$progressbar.start()
         setTimeout(() => {
+          this.loading = false
           this.$progressbar.remove()
-        }, 2000)
+        }, 850)
+      },
+      methods: {
+        start () {
+          this.$progressbar.start()
+        },
+        setPeg () {
+        }
       }
     })
   </script>
