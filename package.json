@@ -1,0 +1,33 @@
+{
+  "name": "v-progressbar",
+  "version": "0.0.1",
+  "description": "A slim progress bars for vuejs like on YouTube, Medium",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petterstrong/v-progressbar.git"
+  },
+  "keywords": [
+    "vue",
+    "vue loading progress",
+    "vue-progressbar",
+    "v-progressbar",
+    "progressbar"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/petterstrong/v-progressbar/issues"
+  },
+  "homepage": "https://github.com/petterstrong/v-progressbar#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-commonjs": "^9.1.0"
+  }
+}
