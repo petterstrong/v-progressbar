@@ -1,10 +1,10 @@
 <template>
   <div class="v-progress" :class="{global}">
-    <div class="bar" :style="styleObj" role="bar">
-      <div class="peg"></div>
+    <div class="bar" :style="styleObj['bar']" role="bar">
+      <div class="peg" :style="styleObj['peg']"></div>
     </div>
     <div class="spinner" role="spinner">
-      <div class="spinner-icon"></div>
+      <div class="spinner-icon" :style="styleObj['spinner']"></div>
     </div>
   </div>
 </template>
@@ -23,9 +23,9 @@
           return {
           }
         }
-      }
+      },
+      status: null // Last number.
     },
-    name: '',
     data () {
       return {}
     },
