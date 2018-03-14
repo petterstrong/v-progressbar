@@ -10,8 +10,20 @@
   <title>V-Progressbar</title>
 </head>
 <body>
+<div id="app">
+  <!--<v-progressbar :global="true"></v-progressbar>-->
+</div>
   <script>
     Vue.use(VProgressBar)
+    var app = new Vue({
+      el: '#app',
+      mounted ()  {
+        this.$progressbar.start()
+        setTimeout(() => {
+          this.$progressbar.remove()
+        }, 2000)
+      }
+    })
   </script>
 </body>
 </html>
