@@ -51,6 +51,7 @@ const ProgressBar = (options = {}) => {
 
     const work = function() {
       setTimeout(function() {
+        console.log(instance.status)
         if (!instance.status) return
         instance.trickle()
         work();
