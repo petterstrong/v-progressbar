@@ -54,6 +54,7 @@
       padding: 8px 10px;
       font-weight: 400;
       text-align: left;
+      cursor: pointer;
     }
 
     .button.play:before {
@@ -237,17 +238,17 @@
         — sets a percentage
       </p>
       <p>
-        <button class="button play" @click="setPeg"></button>
+        <button class="button play"></button>
         <b>inc</b>
         — increments by a little
       </p>
       <p>
-        <button class="button play" @click="setPeg"></button>
+        <button class="button play"></button>
         <b>done</b>
         — completes the progress
       </p>
       <p>
-        <button class="button play" @click="setPeg"></button>
+        <button class="button play"></button>
         <b>failed</b>
         — set failed progress
       </p>
@@ -260,7 +261,9 @@
   </div>
 </div>
   <script>
-    Vue.use(VProgressBar)
+    Vue.use(VProgressBar, {
+      theme: '#29d'
+    })
     var app = new Vue({
       el: '#app',
       data () {
@@ -271,15 +274,16 @@
       mounted ()  {
         this.$progressbar.start()
         setTimeout(() => {
+          this.$progressbar.done()
           this.loading = false
-          this.$progressbar.remove()
-        }, 850)
+        }, 600)
       },
       methods: {
         start () {
           this.$progressbar.start()
         },
         setPeg () {
+          this.$progressbar.set(0.4)
         }
       }
     })

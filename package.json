@@ -4,7 +4,8 @@
   "description": "A slim progress bars for vuejs like on YouTube, Medium",
   "main": "index.js",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
   },
   "repository": {
     "type": "git",

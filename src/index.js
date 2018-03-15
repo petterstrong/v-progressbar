@@ -11,7 +11,8 @@ const getInstance = () => {
   })
 }
 
-const ProgressBar = (options= {}) => {
+const ProgressBar = (options = {}) => {
+  console.log(options)
   const opts = {
     minimum: 0.08,
     easing: 'linear',
@@ -29,6 +30,7 @@ const ProgressBar = (options= {}) => {
 
   const instance = getInstance()
   instance.styleObj = {
+    progress: {},
     bar: {
       backgroundColor: options.theme
     },
@@ -42,7 +44,23 @@ const ProgressBar = (options= {}) => {
   }
 
   instance.start = function () {
-    document.body.appendChild(instance.$el)
+    if (!instance.status) {
+      instance.show()
+      instance.set(0)
+    }
+
+    const work = function() {
+      setTimeout(function() {
+        if (!instance.status) return
+        instance.trickle()
+        work();
+      }, options.trickleSpeed)
+    };
+
+    if (options.trickle) work()
+
+    return this;
+
   }
 
   /**
@@ -52,9 +70,49 @@ const ProgressBar = (options= {}) => {
    *  NProgress.set(1.0);
    */
   instance.set = function (n) {
+    n = clamp(n, options.minimum, 1)
+    instance.status = (n === 1 ? null : n)
+
+    let {speed, easing} = options
+
+    if (!instance.status) {
+      instance.show()
+    }
+
+    queue(next => {
+      if (!options.positionUsing) options.positionUsing = instance.getPositioningCSS()
+
+      instance.styleObj['bar'] = Object.assign(barPositionCSS(n, speed, easing), {backgroundColor: options.theme})
+
+      if (n === 1) {
+        instance.styleObj['progress'] = {
+          transition: 'none',
+          opacity: 1
+        }
+        setTimeout(() => {
+          instance.styleObj['progress'] = {
+            transition: `all ${speed}ms linear`,
+            opacity: 0
+          }
+          setTimeout(() => {
+            instance.remove()
+          }, speed)
+        }, speed)
+      } else {
+        setTimeout(next, speed)
+      }
+    })
+    return this
   }
 
-  instance.done = function () {
+
+  instance.done = function (force) {
+    if (!force && !instance.status) return this
+    return instance.inc(0.3 + 0.5 * Math.random()).set(1)
+  }
+
+  instance.trickle = function () {
+    return instance.inc()
   }
 
   instance.inc = function (amount) {
@@ -87,11 +145,47 @@ const ProgressBar = (options= {}) => {
     }
   }
 
+  instance.show  = function () {
+    document.body.appendChild(instance.$el)
+  }
+
+  var queue = (function () {
+    var pending = []
+    function next () {
+      var fn = pending.shift()
+      if (fn) {
+        fn(next)
+      }
+    }
+    return function (fn) {
+      pending.push(fn)
+
+      if (pending.length === 1) next()
+    }
+  })()
+
   /**
    * Remove progressbar instance from parentNode
    */
   instance.remove = function () {
     instance.$el && instance.$el.parentNode && instance.$el.parentNode.removeChild(instance.$el)
+  }
+
+  /**
+   *  Determine which positioning CSS rule to use.
+   */
+
+  instance.getPositioningCSS = function () {
+    const bodyStyle = document.body.style
+    const vendorPrefix = ('WebkitTransform' in bodyStyle) ? 'Webkit' :
+      ('MozTransform' in bodyStyle) ? 'Moz' :
+        ('msTransform' in bodyStyle) ? 'ms' :
+          ('OTransform' in bodyStyle) ? 'O' : ''
+    if (vendorPrefix + 'Perspective' in bodyStyle) {
+      return 'translate3d'
+    } else if (vendorPrefix + 'Transform' in bodyStyle) {
+      return 'translate'
+    }
   }
   /**
    * Helpers
@@ -102,13 +196,37 @@ const ProgressBar = (options= {}) => {
     if (n > max) return max
     return n
   }
+  /**
+   * (Internal) converts a percentage (`0..1`) to a bar translateX
+   * percentage (`-100%..0%`).
+   */
+
+  function toBarPerc(n) {
+    return (-1 + n) * 100;
+  }
+
+  function barPositionCSS(n, speed, ease) {
+    var barCSS
+
+    if (options.positionUsing === 'translate3d') {
+      barCSS = { transform: 'translate3d('+toBarPerc(n)+'%,0,0)' }
+    } else if (options.positionUsing === 'translate') {
+      barCSS = { transform: 'translate('+toBarPerc(n)+'%,0)' }
+    } else {
+      barCSS = { 'margin-left': toBarPerc(n)+'%' }
+    }
+
+    barCSS.transition = 'all '+speed+'ms '+ease
+
+    return barCSS;
+  }
   return instance
 }
 
 function install (Vue, options) {
   const isBrowser = typeof window !== 'undefined'
   Vue.component('v-progressbar', VProgressBar)
-  Vue.prototype.$progressbar = ProgressBar()
+  Vue.prototype.$progressbar = ProgressBar(options)
 }
 
 export default {
